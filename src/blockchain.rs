@@ -6,7 +6,8 @@ use log::info;
 use crate::block::Block;
 use crate::block::TARGET_HEXT;
 use crate::error::Result;
-use crate::transaction::{Transaction, TxInput, TxOutput};
+use crate::transaction::Transaction;
+use crate::tx::{TxInput, TxOutput};
 
 #[derive(Debug, Clone)]
 pub struct Blockchain {
@@ -107,11 +108,12 @@ impl Blockchain {
                         unspend_TXs.push(tx.clone());
                     }
                 }
-    
+
                 if !tx.is_coinbase() {
                     for i in &tx.vin {
                         if i.can_unlock_output_with(address) {
-                            spent_TXOs.entry(i.txid.clone())
+                            spent_TXOs
+                                .entry(i.txid.clone())
                                 .or_insert_with(Vec::new)
                                 .push(i.vout);
                         }
@@ -121,7 +123,6 @@ impl Blockchain {
         }
         unspend_TXs
     }
-    
 
     pub fn find_UTXO(&self, address: &str) -> Vec<TxOutput> {
         let mut UTXOs: Vec<TxOutput> = Vec::new();

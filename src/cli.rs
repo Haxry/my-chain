@@ -3,6 +3,7 @@ use std::process::exit;
 use crate::blockchain::Blockchain;
 use crate::error::Result;
 use crate::transaction::Transaction;
+use crate::wallet::Wallets;
 use clap::Command;
 use clap::arg;
 
@@ -19,6 +20,8 @@ impl Cli {
             .author("haxry")
             .about("A simple blockchain implementation in Rust")
             .subcommand(Command::new("printchain").about("Print all the blocks in the blockchain"))
+            .subcommand(Command::new("createwallet").about("Create a new wallet"))
+            .subcommand(Command::new("listaddresses").about("List all addresses in the wallet"))
             .subcommand(
                 Command::new("getbalance")
                     .about("get balance in the blockchain")
@@ -34,18 +37,21 @@ impl Cli {
                     .about("send amount to address")
                     .arg(arg!(<FROM> "'The address to send from'"))
                     .arg(arg!(<TO> "'The address to send to'"))
-                    .arg(arg!(<AMOUNT> "'The amount to send'").value_parser(clap::value_parser!(i32)))
+                    .arg(
+                        arg!(<AMOUNT> "'The amount to send'")
+                            .value_parser(clap::value_parser!(i32)),
+                    ),
             )
             .get_matches();
         if let Some(ref matches) = matches.subcommand_matches("create") {
-            if let Some(address) = matches.get_one::<String>( "ADDRESS") {
+            if let Some(address) = matches.get_one::<String>("ADDRESS") {
                 let address = String::from(address);
                 let bc = Blockchain::create_blockchain(address.to_string())?;
                 println!("Success! Created a new blockchain");
             }
         }
-        if let Some(ref matches)= matches.subcommand_matches("getbalance") {
-            if let Some(address) = matches.get_one::<String>( "ADDRESS") {
+        if let Some(ref matches) = matches.subcommand_matches("getbalance") {
+            if let Some(address) = matches.get_one::<String>("ADDRESS") {
                 let address = String::from(address);
                 let bc = Blockchain::new()?;
                 let utxos = bc.find_UTXO(&address);
@@ -57,10 +63,9 @@ impl Cli {
                 }
                 println!("Balance of {}: {}", address, balance);
             }
-            
         }
 
-        if let Some(ref matches)= matches.subcommand_matches("send") {
+        if let Some(ref matches) = matches.subcommand_matches("send") {
             let from = if let Some(from) = matches.get_one::<String>("FROM") {
                 String::from(from)
             } else {
@@ -86,6 +91,19 @@ impl Cli {
         }
         if let Some(_) = matches.subcommand_matches("printchain") {
             self.printchain();
+        }
+        if let Some(_) = matches.subcommand_matches("createwallet") {
+            let mut ws = Wallets::new()?;
+            let address = ws.create_wallet()?;
+            ws.save_all()?;
+            println!("Success! Created wallet with address: {}", address);
+        }
+        if let Some(_) = matches.subcommand_matches("listaddresses") {
+            let ws = Wallets::new()?;
+            let addresses = ws.get_all_address();
+            for address in addresses {
+                println!("{}", address);
+            }
         }
         Ok(())
     }

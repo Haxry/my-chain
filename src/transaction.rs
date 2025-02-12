@@ -2,6 +2,7 @@ use std::vec;
 
 use crate::blockchain::Blockchain;
 use crate::error::Result;
+use crate::tx::{TxInput, TxOutput};
 use crypto::digest::Digest;
 use crypto::sha2::Sha256;
 use failure::format_err;
@@ -11,19 +12,6 @@ pub struct Transaction {
     pub id: String,
     pub vin: Vec<TxInput>,
     pub vout: Vec<TxOutput>,
-}
-
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct TxInput {
-    pub txid: String,
-    pub vout: i32,
-    pub script_sig: String, //unlocking script
-}
-
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct TxOutput {
-    pub value: i32,
-    pub script_pub_key: String, //locking script
 }
 
 impl Transaction {
@@ -96,17 +84,5 @@ impl Transaction {
 
     pub fn is_coinbase(&self) -> bool {
         self.vin.len() == 1 && self.vin[0].txid == String::from("") && self.vin[0].vout == -1
-    }
-}
-
-impl TxInput {
-    pub fn can_unlock_output_with(&self, unlocking_data: &str) -> bool {
-        self.script_sig == unlocking_data
-    }
-}
-
-impl TxOutput {
-    pub fn can_be_unlocked_with(&self, unlocking_data: &str) -> bool {
-        self.script_pub_key == unlocking_data
     }
 }

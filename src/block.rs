@@ -8,7 +8,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 pub const TARGET_HEXT: usize = 4;
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize,)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 
 pub struct Block {
     timestamp: u128,
