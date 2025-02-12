@@ -1,14 +1,19 @@
+use crate::error::Result;
+use crate::transaction::Transaction;
+use std::collections::HashMap;
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct TxInput {
     pub txid: String,
     pub vout: i32,
-    pub script_sig: String, //unlocking script
+    pub signature: Vec<u8>,
+    pub pub_key: Vec<u8>,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct TxOutput {
     pub value: i32,
-    pub script_pub_key: String, //locking script
+    pub pub_key_hash: Vec<u8>, //locking script
 }
 
 impl TxInput {
